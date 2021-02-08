@@ -29,7 +29,20 @@ class AuthenticateController {
         
     }
     login = (req,res)=>{
-
+        const {email,password,username} = req.body;
+        const errorReturn = () => res.status(400).json({"Error":"Username or Password are wrong"});
+        const user = User.findOne({$or:[{username:username},{email:email}]}).then((result) => {
+            if(result) {
+                bcrypt.compare(password,result.password,(error,rslt) => {
+                    error || !rslt ? errorReturn() : res.json(result);
+                })
+                
+            }else{
+                errorReturn();
+            }
+            
+        }).catch(err => {console.log(err);errorReturn()});
+        
     }
     logOut = (req,res)=>{
 
