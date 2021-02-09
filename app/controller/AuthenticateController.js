@@ -1,6 +1,7 @@
 
 const User = require("../database/models/User.model");
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
+const { generateToken } = require("./Auth/AuthenticateToken");
 class AuthenticateController {
 
     constructor(){
@@ -32,9 +33,19 @@ class AuthenticateController {
         const {email,password,username} = req.body;
         const errorReturn = () => res.status(400).json({"Error":"Username or Password are wrong"});
         const user = User.findOne({$or:[{username:username},{email:email}]}).then((result) => {
+            
             if(result) {
-                bcrypt.compare(password,result.password,(error,rslt) => {
-                    error || !rslt ? errorReturn() : res.json(result);
+                var {password:pword,createdAt,updatedAt,__v,...rest} = result;
+                var {password:pword,createdAt,updatedAt,__v,...kembali} = rest["_doc"]
+                bcrypt.compare(password,pword,(error,rslt) => {
+                    
+                   
+                    if(!rslt){
+                        return errorReturn()
+                    }
+
+                    let token = generateToken(kembali);
+                    return res.json({...kembali,token:token});
                 })
                 
             }else{
@@ -43,6 +54,9 @@ class AuthenticateController {
             
         }).catch(err => {console.log(err);errorReturn()});
         
+    }
+    me = (req,res) => {
+        return res.json(req.user);
     }
     logOut = (req,res)=>{
 
