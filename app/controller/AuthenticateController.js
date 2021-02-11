@@ -17,13 +17,16 @@ class AuthenticateController {
             let newUser =new User(req.body);
             
             newUser.save().then(() => {
-                res.json("user added")
+                var {password:pword,createdAt,updatedAt,__v,...kembali} = newUser.toObject();
+           
+                let token = generateToken({"id":kembali["_id"]});
+                return res.json({...kembali,token:token});
             }).catch(err => {
                 console.log(err)
                 if(err.code == 11000){
-                    res.status(400).json({"Error":"Duplicate Field"})
+                    return res.status(400).json({"Error":"Duplicate Field"})
                 }
-                res.status(400).json({"Error":"Oops something gone wrong"})
+                return res.status(400).json({"Error":"Oops something gone wrong"})
             })
 
         });
@@ -35,8 +38,8 @@ class AuthenticateController {
         const user = User.findOne({$or:[{username:username},{email:email}]}).then((result) => {
             
             if(result) {
-                var {password:pword,createdAt,updatedAt,__v,...rest} = result;
-                var {password:pword,createdAt,updatedAt,__v,...kembali} = rest["_doc"]
+                var {password:pword,createdAt,updatedAt,__v,...kembali} = result.toObject();
+                
                 bcrypt.compare(password,pword,(error,rslt) => {
                     
                    
@@ -44,7 +47,7 @@ class AuthenticateController {
                         return errorReturn()
                     }
 
-                    let token = generateToken(kembali);
+                    let token = generateToken({id:kembali["_id"]});
                     return res.json({...kembali,token:token});
                 })
                 

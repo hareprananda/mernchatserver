@@ -2,12 +2,16 @@ const express = require("express");
 const app = express();
 const http = require("http");
 const bodyParser = require("body-parser");
+const server = http.createServer(app);
+const socketio = require("socket.io");
+const ChatController = require("./app/controller/ChatController");
 
+ChatController(server);
 
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
 
-const server = http.createServer(app);
+
 require("dotenv").config();
 
 require('./app/database/connection');

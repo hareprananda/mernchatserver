@@ -1,9 +1,9 @@
 const router = require("express").Router();
 const Auth = require("../app/controller/AuthenticateController");
-const passport = require("passport");
 
-const initializePassport = require("../app/controller/Auth/passport-config");
 const { generateToken, authenticateToken } = require("../app/controller/Auth/AuthenticateToken");
+const UserController = require("../app/controller/UserController");
+const ChatController = require("../app/controller/ChatController");
 
 router.post("/register",(new Auth).register);
 router.post("/login",(new Auth).login);
@@ -14,4 +14,7 @@ router.post('/createtoken',(req,res)=> {
 });
 
 router.get('/me',authenticateToken,(new Auth).me);
+router.put("/changeprofile",authenticateToken,(new UserController).changeProfile);
+
+// router.post("/chat",authenticateToken,(new ChatController).sendChat);
 module.exports = router;
