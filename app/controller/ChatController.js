@@ -3,6 +3,7 @@ const CryptoJS = require("crypto-js");
 const jwtAuth = require("socketio-jwt-auth");
 const User = require("../database/models/User.model");
 require("dotenv").config();
+const online = [];
 function ChatController(server){
     const io = socketio(server,{
         cors : {
@@ -38,6 +39,8 @@ function ChatController(server){
     io.on("connection",socket => {
         console.log("yuhu ada yang join");
 
+        online.push({userId : socket.request.user._id, socketId:socket.id})
+
         socket.emit("success",{
             message : "Success logged in",
             user : socket.request.user
@@ -53,6 +56,11 @@ function ChatController(server){
 
 
         socket.on("disconnect",()=> {
+            let leftIndex = online.findIndex(value => value.socketId == socket.id);
+            if(leftIndex !== (-1)){
+                online.splice(leftIndex,1);
+            }
+            
             console.log(socket.id +" leave")
         })
     })

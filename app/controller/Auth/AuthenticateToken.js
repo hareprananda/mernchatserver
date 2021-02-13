@@ -16,6 +16,6 @@ const authenticateToken = (req,res,next)=>{
 }
 const generateToken = (payload) => {
     
-    return jwt.sign(payload,process.env.TOKEN_SECRET,{expiresIn : '7200s'});
+    return jwt.sign(payload,process.env.TOKEN_SECRET,{expiresIn : '7200s',algorithm : "HS256"});
 }
 module.exports = {authenticateToken,generateToken};
